@@ -1,0 +1,754 @@
+<!doctype html>
+<!-- Story's 7th Birthday Celebration — RSVP page
+     Single-file site: open directly in a browser or host on GitHub Pages / Netlify.
+     Set SCRIPT_URL (in the CONFIG block near the bottom) to your Google Apps Script Web App URL. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Story's 7th Birthday RSVP</title>
+<meta name="description" content="RSVP for Story's 7th Birthday Celebration — October 31, 2026, 4:00 PM at Subic Bay Peninsular Hotel.">
+<meta name="theme-color" content="#FFF7FA">
+<meta property="og:title" content="Story's 7th Birthday Celebration (RSVP)">
+<meta property="og:description" content="Saturday, October 31, 2026 · 4:00 PM · Subic Bay Peninsular Hotel">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    /* Palette: leotard pink, ribbon lilac, mat mint, medal gold, plum ink */
+    --ground: #FFF7FA;
+    --paper: #FFFFFF;
+    --pink: #F48FB1;
+    --pink-soft: #FCE1EB;
+    --lilac: #B39DDB;
+    --lilac-soft: #EEE6FA;
+    --mint: #7FD4B8;
+    --mint-soft: #DDF5EC;
+    --gold: #E7B24A;
+    --gold-soft: #FFF1D2;
+    --ink: #3E2A4F;
+    --ink-soft: #6E5A80;
+    --line: #EBDCE8;
+    --danger: #C0395B;
+    --radius: 22px;
+    --shadow: 0 10px 30px rgba(126, 72, 120, .12);
+    --display: "Fredoka", "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+    --body: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--ground);
+    background-image:
+      radial-gradient(circle at 12% 8%, var(--pink-soft) 0 140px, transparent 141px),
+      radial-gradient(circle at 92% 22%, var(--lilac-soft) 0 170px, transparent 171px),
+      radial-gradient(circle at 6% 78%, var(--mint-soft) 0 130px, transparent 131px),
+      radial-gradient(circle at 96% 92%, var(--gold-soft) 0 150px, transparent 151px);
+    color: var(--ink);
+    font: 16px/1.6 var(--body);
+    padding-inline: 16px;
+    padding-block: calc(24px + env(safe-area-inset-top, 0px)) calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+  .wrap { max-width: 620px; margin: 0 auto; display: grid; gap: 20px; position: relative; z-index: 1; }
+
+  /* ---------- Hero ---------- */
+  .hero { text-align: center; display: grid; gap: 6px; justify-items: center; padding-top: 8px; }
+  .ribbon-stage { width: 100%; max-width: 420px; height: 150px; position: relative; }
+  .ribbon-stage svg { width: 100%; height: 100%; overflow: visible; }
+  .ribbon-path {
+    fill: none; stroke: url(#ribbonGrad); stroke-width: 7; stroke-linecap: round;
+    stroke-dasharray: 900; stroke-dashoffset: 900;
+    animation: draw 2.2s ease-out .2s forwards, sway 5s ease-in-out 2.4s infinite;
+    transform-origin: 50% 50%;
+  }
+  .ribbon-stick { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
+  .seven {
+    font: 700 84px/1 var(--display);
+    fill: var(--pink);
+    paint-order: stroke; stroke: #fff; stroke-width: 8px;
+    animation: pop .7s cubic-bezier(.3,1.6,.5,1) .1s both;
+    transform-origin: center; transform-box: fill-box;
+  }
+  .sparkle { fill: var(--gold); animation: twinkle 2.4s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  .sparkle:nth-of-type(2) { animation-delay: .6s; fill: var(--lilac); }
+  .sparkle:nth-of-type(3) { animation-delay: 1.2s; fill: var(--mint); }
+
+  .eyebrow {
+    font: 800 12px/1 var(--body); letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ink-soft); background: var(--paper); border: 1.5px solid var(--line);
+    padding: 8px 14px; border-radius: 999px;
+  }
+  h1 {
+    font: 700 clamp(30px, 7vw, 44px)/1.1 var(--display);
+    margin: 6px 0 0; text-wrap: balance; letter-spacing: -.01em;
+  }
+  h1 .name { color: var(--pink); }
+  .rsvp-tag {
+    display: inline-block; font: 600 15px/1 var(--display); letter-spacing: .12em;
+    color: #fff; background: var(--lilac); padding: 8px 16px 7px; border-radius: 999px;
+    transform: rotate(-3deg); margin-top: 6px; box-shadow: 0 4px 0 #9a82c7;
+  }
+
+  /* ---------- Details ---------- */
+  .card {
+    background: var(--paper); border-radius: var(--radius); box-shadow: var(--shadow);
+    border: 1.5px solid var(--line); padding: 22px;
+  }
+  .details { display: grid; gap: 14px; }
+  .detail { display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: center; }
+  .detail .ico {
+    width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center;
+  }
+  .detail:nth-child(1) .ico { background: var(--pink-soft); }
+  .detail:nth-child(2) .ico { background: var(--lilac-soft); }
+  .ico svg { width: 24px; height: 24px; }
+  .detail .label { font: 800 11px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+  .detail .value { font: 600 18px/1.3 var(--display); margin-top: 4px; }
+  .detail .sub { font-size: 14px; color: var(--ink-soft); }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  .chip-link {
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    font: 700 14px/1 var(--body); color: var(--ink); background: var(--ground);
+    border: 1.5px solid var(--line); border-radius: 999px; padding: 10px 14px;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .chip-link:hover { transform: translateY(-2px); border-color: var(--pink); background: var(--pink-soft); }
+  .chip-link svg { width: 16px; height: 16px; }
+
+  /* Countdown */
+  .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .tick {
+    text-align: center; background: var(--ground); border-radius: 16px; padding: 12px 4px 10px;
+    border: 1.5px dashed var(--line);
+  }
+  .tick b { display: block; font: 700 clamp(24px, 6vw, 32px)/1 var(--display); font-variant-numeric: tabular-nums; color: var(--ink); }
+  .tick span { font: 800 10px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
+  .countdown-title { font: 600 15px/1 var(--display); color: var(--ink-soft); margin: 0 0 12px; text-align: center; }
+
+  /* Reminders */
+  .reminders { background: var(--gold-soft); border-color: #F2DDAA; box-shadow: none; }
+  .reminders h2 { font: 700 18px/1.2 var(--display); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .reminders h2 svg { width: 22px; height: 22px; flex: none; }
+  .reminders ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .reminders li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 15px; }
+  .reminders li::before {
+    content: ""; width: 10px; height: 10px; margin-top: 7px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 0 4px #F7E3B5;
+  }
+
+  /* ---------- Form ---------- */
+  .form-card h2 { font: 700 24px/1.2 var(--display); margin: 0 0 4px; }
+  .form-card .intro { margin: 0 0 18px; color: var(--ink-soft); font-size: 15px; }
+  form { display: grid; gap: 22px; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .q { font: 700 16px/1.3 var(--body); margin-bottom: 10px; display: block; }
+  .q .req { color: var(--pink); }
+  .hint { font-size: 13px; color: var(--ink-soft); margin-top: -4px; margin-bottom: 10px; display: block; }
+
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .choice { position: relative; }
+  .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .choice label {
+    display: grid; justify-items: center; gap: 8px; text-align: center; cursor: pointer;
+    padding: 18px 10px 16px; border-radius: 18px; border: 2px solid var(--line); background: var(--ground);
+    font: 600 16px/1.25 var(--display); transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    min-height: 100%;
+  }
+  .choice label svg { width: 46px; height: 46px; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+  .choice label:hover { transform: translateY(-3px); }
+  .choice input:focus-visible + label { outline: 3px solid var(--lilac); outline-offset: 3px; }
+  .choice.yes input:checked + label { border-color: var(--pink); background: var(--pink-soft); box-shadow: 0 6px 0 #EFA9C2; animation: bounce .45s cubic-bezier(.3,1.6,.5,1); }
+  .choice.no input:checked + label { border-color: var(--lilac); background: var(--lilac-soft); box-shadow: 0 6px 0 #C9B8E6; animation: bounce .45s cubic-bezier(.3,1.6,.5,1); }
+  .choice input:checked + label svg { transform: rotate(-10deg) scale(1.12); }
+
+  .field input[type="text"] {
+    width: 100%; font: 600 16px/1.3 var(--body); color: var(--ink);
+    padding: 14px 16px; border-radius: 14px; border: 2px solid var(--line); background: var(--ground);
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .field input[type="text"]::placeholder { color: #B3A3BF; font-weight: 400; }
+  .field input[type="text"]:focus { outline: none; border-color: var(--lilac); background: #fff; box-shadow: 0 0 0 4px var(--lilac-soft); }
+  .field.invalid input[type="text"], input.invalid { border-color: var(--danger) !important; }
+  .error { color: var(--danger); font-size: 13px; font-weight: 700; margin-top: 6px; }
+
+  .stepper { display: inline-flex; align-items: center; gap: 0; border: 2px solid var(--line); border-radius: 999px; background: var(--ground); padding: 4px; }
+  .stepper button {
+    width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+    background: #fff; color: var(--ink); font: 700 22px/1 var(--display); box-shadow: 0 2px 0 var(--line);
+    transition: transform .12s ease, background .15s ease;
+  }
+  .stepper button:hover:not(:disabled) { background: var(--pink-soft); }
+  .stepper button:active:not(:disabled) { transform: scale(.92); }
+  .stepper button:disabled { opacity: .35; cursor: not-allowed; }
+  .stepper button:focus-visible { outline: 3px solid var(--lilac); outline-offset: 2px; }
+  .stepper output { min-width: 64px; text-align: center; font: 700 26px/1 var(--display); font-variant-numeric: tabular-nums; }
+  .count-line { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+  .headcount-pill {
+    font: 700 13px/1 var(--body); background: var(--mint-soft); color: #2E7A61;
+    padding: 9px 12px; border-radius: 999px;
+  }
+
+  .names { display: grid; gap: 10px; }
+  .name-row { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; animation: slideIn .3s ease both; }
+  .name-row .num {
+    width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    font: 700 15px/1 var(--display); color: #fff; background: var(--pink);
+  }
+  .name-row:nth-child(3n+2) .num { background: var(--lilac); }
+  .name-row:nth-child(3n+3) .num { background: var(--mint); }
+
+  .reveal { animation: fadeUp .35s ease both; }
+
+  .submit {
+    width: 100%; border: 0; cursor: pointer; border-radius: 18px; padding: 18px 20px;
+    font: 700 19px/1 var(--display); letter-spacing: .02em; color: #fff;
+    background: linear-gradient(135deg, var(--pink), #EE7AA4);
+    box-shadow: 0 6px 0 #D86E95, 0 14px 24px rgba(238, 122, 164, .3);
+    transition: transform .12s ease, box-shadow .12s ease, filter .2s ease;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .submit:hover { filter: brightness(1.04); transform: translateY(-1px); }
+  .submit:active { transform: translateY(4px); box-shadow: 0 2px 0 #D86E95, 0 6px 12px rgba(238,122,164,.25); }
+  .submit:focus-visible { outline: 3px solid var(--lilac); outline-offset: 3px; }
+  .submit:disabled { cursor: progress; filter: saturate(.6); }
+  .spinner { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(255,255,255,.45); border-top-color: #fff; animation: spin .8s linear infinite; }
+  .form-error {
+    background: #FDE7EC; color: var(--danger); border-radius: 14px; padding: 12px 14px; font-weight: 700; font-size: 14px;
+  }
+  .deadline-note { text-align: center; font-size: 13px; color: var(--ink-soft); margin: -8px 0 0; }
+
+  /* ---------- Thank-you ---------- */
+  .thanks { text-align: center; display: grid; gap: 10px; justify-items: center; padding: 30px 22px; }
+  .thanks h2 { font: 700 28px/1.15 var(--display); margin: 0; text-wrap: balance; }
+  .thanks p { margin: 0; color: var(--ink-soft); max-width: 42ch; }
+  .gymnast { width: 150px; height: 150px; }
+  .gymnast .body { transform-origin: 75px 75px; animation: cartwheel 1.6s cubic-bezier(.5,0,.5,1) infinite; }
+  .gymnast.still .body { animation: none; }
+  .summary {
+    width: 100%; max-width: 380px; text-align: left; background: var(--ground); border-radius: 16px;
+    padding: 14px 16px; border: 1.5px dashed var(--line); font-size: 14px; display: grid; gap: 4px;
+  }
+  .summary strong { font-family: var(--display); font-weight: 600; }
+  .ghost-btn {
+    border: 2px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px;
+    font: 700 14px/1 var(--body); padding: 12px 18px; cursor: pointer; transition: border-color .15s ease, background .15s ease;
+  }
+  .ghost-btn:hover { border-color: var(--lilac); background: var(--lilac-soft); }
+  .ghost-btn:focus-visible { outline: 3px solid var(--lilac); outline-offset: 2px; }
+
+  .notice {
+    font-size: 13px; background: var(--lilac-soft); color: var(--ink); border-radius: 12px; padding: 10px 12px; text-align: center;
+  }
+  footer { text-align: center; font-size: 13px; color: var(--ink-soft); padding-top: 4px; }
+  footer .hearts { color: var(--pink); }
+
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 5; width: 100%; height: 100%; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes sway { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(2.5deg) translateY(-3px); } }
+  @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes twinkle { 0%,100% { transform: scale(.6) rotate(0deg); opacity: .6; } 50% { transform: scale(1.15) rotate(45deg); opacity: 1; } }
+  @keyframes bounce { 0% { transform: scale(.94); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes cartwheel {
+    0% { transform: translateX(-30px) rotate(0deg); }
+    50% { transform: translateX(30px) rotate(360deg); }
+    50.01% { transform: translateX(30px) rotate(0deg); }
+    100% { transform: translateX(-30px) rotate(-360deg); }
+  }
+
+  @media (max-width: 420px) {
+    .card { padding: 18px; }
+    .choices { grid-template-columns: 1fr; }
+    .choice label { grid-template-columns: 46px 1fr; justify-items: start; text-align: left; align-items: center; padding: 14px 16px; }
+    .countdown { gap: 6px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .ribbon-path { stroke-dashoffset: 0; }
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<main class="wrap">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="ribbon-stage" aria-hidden="true">
+      <svg viewBox="0 0 420 150">
+        <defs>
+          <linearGradient id="ribbonGrad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="#F48FB1"/>
+            <stop offset=".5" stop-color="#B39DDB"/>
+            <stop offset="1" stop-color="#7FD4B8"/>
+          </linearGradient>
+        </defs>
+        <line class="ribbon-stick" x1="22" y1="128" x2="58" y2="96"/>
+        <path class="ribbon-path" d="M58 96 C 90 40, 140 20, 150 70 S 110 130, 170 120 S 260 20, 300 60 S 330 140, 380 90 S 400 30, 360 34"/>
+        <text class="seven" x="210" y="104" text-anchor="middle">7</text>
+        <path class="sparkle" d="M70 22 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/>
+        <path class="sparkle" d="M340 118 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/>
+        <path class="sparkle" d="M395 12 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/>
+      </svg>
+    </div>
+    <span class="eyebrow">You're invited to twirl with us</span>
+    <h1><span class="name">Story's</span> 7th Birthday Celebration</h1>
+    <span class="rsvp-tag">RSVP</span>
+  </header>
+
+  <!-- Event details -->
+  <section class="card details" aria-label="Event details">
+    <div class="detail">
+      <div class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#C2567E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><circle cx="12" cy="15" r="1.6" fill="#C2567E"/></svg>
+      </div>
+      <div>
+        <div class="label">Date &amp; time</div>
+        <div class="value">Saturday, October 31, 2026</div>
+        <div class="sub">4:00 PM (Philippine Time)</div>
+      </div>
+    </div>
+    <div class="detail">
+      <div class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#7A5FB0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+      </div>
+      <div>
+        <div class="label">Venue</div>
+        <div class="value">Subic Bay Peninsular Hotel</div>
+      </div>
+    </div>
+    <div class="links">
+      <a class="chip-link" id="calLink" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add to Google Calendar
+      </a>
+      <a class="chip-link" href="https://www.google.com/maps/search/?api=1&amp;query=Subic+Bay+Peninsular+Hotel" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>
+        Open in Google Maps
+      </a>
+    </div>
+  </section>
+
+  <!-- Countdown -->
+  <section class="card" aria-label="Countdown to the party">
+    <p class="countdown-title" id="countdownTitle">Counting down to the big day</p>
+    <div class="countdown" id="countdown" role="timer" aria-live="off">
+      <div class="tick"><b id="cdD">--</b><span>Days</span></div>
+      <div class="tick"><b id="cdH">--</b><span>Hours</span></div>
+      <div class="tick"><b id="cdM">--</b><span>Mins</span></div>
+      <div class="tick"><b id="cdS">--</b><span>Secs</span></div>
+    </div>
+  </section>
+
+  <!-- Reminders -->
+  <section class="card reminders" aria-labelledby="remTitle">
+    <h2 id="remTitle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#B07D14" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4.5M12 17.3v.2"/></svg>
+      Important Reminders
+    </h2>
+    <ul>
+      <li>Due to limited venue capacity, attendance is strictly restricted to invited guests only.</li>
+      <li>All helpers are required to obtain prior approval before rendering any assistance.</li>
+    </ul>
+  </section>
+
+  <!-- RSVP form -->
+  <section class="card form-card" id="formCard" aria-labelledby="formTitle">
+    <h2 id="formTitle">Will you join the celebration?</h2>
+    <p class="intro">Please let us know by <strong id="deadlineText">October 24, 2026</strong>.</p>
+
+    <div class="notice" id="returningNotice" hidden></div>
+
+    <form id="rsvpForm" novalidate>
+      <fieldset>
+        <legend class="q">Can you attend? <span class="req" aria-hidden="true">*</span></legend>
+        <div class="choices">
+          <div class="choice yes">
+            <input type="radio" id="attendYes" name="attending" value="Yes" required>
+            <label for="attendYes">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <!-- ballet slippers -->
+                <path d="M9 30c0-7 4-13 9-13s6 5 6 10-3 12-8 12-7-3-7-9z" fill="#F48FB1"/>
+                <path d="M24 32c0-7 4-13 9-13s6 5 6 10-3 12-8 12-7-3-7-9z" fill="#F7A8C4"/>
+                <ellipse cx="17" cy="27" rx="4" ry="5" fill="#FCE1EB"/>
+                <ellipse cx="32" cy="29" rx="4" ry="5" fill="#FCE1EB"/>
+                <path d="M15 17C12 10 8 8 5 9M20 17c2-7 7-9 10-8M31 19c-2-7-6-10-9-10M36 20c3-6 7-7 10-6" stroke="#E27AA0" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              </svg>
+              <span>Yes, I'll be there</span>
+            </label>
+          </div>
+          <div class="choice no">
+            <input type="radio" id="attendNo" name="attending" value="No">
+            <label for="attendNo">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <!-- envelope with heart -->
+                <rect x="6" y="13" width="36" height="25" rx="4" fill="#D8CBF0"/>
+                <path d="M7 15l17 13 17-13" stroke="#9C86CC" stroke-width="2.2" fill="none" stroke-linejoin="round"/>
+                <path d="M24 24c-3-4-9-2-7 3 1 3 7 6 7 6s6-3 7-6c2-5-4-7-7-3z" fill="#F48FB1"/>
+              </svg>
+              <span>Sorry, can't make it</span>
+            </label>
+          </div>
+        </div>
+        <div class="error" id="attendErr" hidden>Please choose whether you can attend.</div>
+      </fieldset>
+
+      <div class="field" id="nameField">
+        <label class="q" for="fullName">What is your full name? <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="fullName" name="fullName" autocomplete="name" placeholder="e.g. Maria Santos" maxlength="80" required>
+        <div class="error" id="nameErr" hidden>Please enter your full name (first and last).</div>
+      </div>
+
+      <div id="yesOnly" hidden>
+        <div style="display:grid; gap:22px;">
+          <div class="field">
+            <span class="q" id="countLabel">How many people are attending with you?</span>
+            <span class="hint">Don't count yourself. Up to <span id="maxText">5</span> companions.</span>
+            <div class="count-line">
+              <div class="stepper" role="group" aria-labelledby="countLabel">
+                <button type="button" id="minus" aria-label="Remove one person">&minus;</button>
+                <output id="companionCount" aria-live="polite">0</output>
+                <button type="button" id="plus" aria-label="Add one person">+</button>
+              </div>
+              <span class="headcount-pill" id="headcountPill">Total in your party: 1</span>
+            </div>
+          </div>
+
+          <div class="field" id="namesField" hidden>
+            <span class="q">What are the names of people attending? <span class="req" aria-hidden="true">*</span></span>
+            <div class="names" id="namesList"></div>
+            <div class="error" id="namesErr" hidden>Please fill in every name.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-error" id="formError" role="alert" hidden></div>
+
+      <button type="submit" class="submit" id="submitBtn">
+        <span id="submitLabel">Send my RSVP</span>
+      </button>
+      <p class="deadline-note">Already replied? Sending again with the same name updates your answer.</p>
+    </form>
+  </section>
+
+  <!-- Thank-you panel -->
+  <section class="card thanks" id="thanksCard" hidden aria-live="polite">
+    <svg class="gymnast" id="gymnast" viewBox="0 0 150 150" aria-hidden="true">
+      <ellipse cx="75" cy="138" rx="46" ry="6" fill="#DDF5EC"/>
+      <g class="body">
+        <!-- a little gymnast doing a star jump / cartwheel -->
+        <circle cx="75" cy="42" r="12" fill="#F6D2B8"/>
+        <path d="M63 38c2-10 22-12 25 0-4-4-20-5-25 0z" fill="#5B3A2E"/>
+        <circle cx="87" cy="33" r="5" fill="#5B3A2E"/>
+        <circle cx="90" cy="30" r="3" fill="#F48FB1"/>
+        <path d="M66 56h18l3 26H63z" fill="#F48FB1"/>
+        <path d="M66 58 44 34M84 58l22-24" stroke="#F6D2B8" stroke-width="6" stroke-linecap="round"/>
+        <path d="M68 82 54 110M82 82l14 28" stroke="#F6D2B8" stroke-width="7" stroke-linecap="round"/>
+        <path d="M63 70h24" stroke="#fff" stroke-width="2" opacity=".6"/>
+        <circle cx="75" cy="64" r="2" fill="#fff"/>
+      </g>
+    </svg>
+    <h2 id="thanksTitle">Yay! See you there!</h2>
+    <p id="thanksMsg"></p>
+    <div class="summary" id="summary"></div>
+    <button type="button" class="ghost-btn" id="editBtn">Change my response</button>
+  </section>
+
+  <section class="card thanks" id="closedCard" hidden>
+    <h2>RSVPs are now closed</h2>
+    <p>Thank you so much! If you have a question about your invitation, please message the family directly.</p>
+  </section>
+
+  <footer>Made with <span class="hearts">&hearts;</span> for Story</footer>
+</main>
+
+<script>
+/* =========================================================
+   CONFIG — edit these values
+   ========================================================= */
+const CONFIG = {
+  // Paste your Google Apps Script Web App URL here (ends in /exec).
+  // While this is left as-is, the form runs in demo mode and saves nothing.
+  SCRIPT_URL: "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE",
+  EVENT_START: "2026-10-31T16:00:00+08:00",
+  EVENT_END:   "2026-10-31T20:00:00+08:00",
+  RSVP_DEADLINE: "2026-10-24T23:59:59+08:00",   // form closes after this
+  MAX_COMPANIONS: 5
+};
+
+/* ========================================================= */
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const DEMO = !/^https:\/\/script\.google\.com\//.test(CONFIG.SCRIPT_URL);
+  const STORE_KEY = "story7-rsvp";
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || "null"); } catch (e) { return null; } },
+    set(v) { try { localStorage.setItem(STORE_KEY, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  /* ---------- Calendar link ---------- */
+  const toCal = (iso) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const cal = new URL("https://calendar.google.com/calendar/render");
+  cal.searchParams.set("action", "TEMPLATE");
+  cal.searchParams.set("text", "Story's 7th Birthday Celebration");
+  cal.searchParams.set("dates", toCal(CONFIG.EVENT_START) + "/" + toCal(CONFIG.EVENT_END));
+  cal.searchParams.set("location", "Subic Bay Peninsular Hotel");
+  cal.searchParams.set("details", "Invited guests only. See you there!");
+  $("calLink").href = cal.toString();
+
+  /* ---------- Deadline text ---------- */
+  const deadline = new Date(CONFIG.RSVP_DEADLINE);
+  $("deadlineText").textContent = deadline.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "Asia/Manila" });
+  $("maxText").textContent = CONFIG.MAX_COMPANIONS;
+
+  /* ---------- Countdown ---------- */
+  const start = new Date(CONFIG.EVENT_START).getTime();
+  const pad = (n) => String(n).padStart(2, "0");
+  function tick() {
+    let diff = start - Date.now();
+    if (diff <= 0) {
+      $("countdownTitle").textContent = "It's party time! 🎉";
+      ["cdD", "cdH", "cdM", "cdS"].forEach((id) => ($(id).textContent = "00"));
+      return;
+    }
+    const d = Math.floor(diff / 864e5); diff -= d * 864e5;
+    const h = Math.floor(diff / 36e5); diff -= h * 36e5;
+    const m = Math.floor(diff / 6e4); diff -= m * 6e4;
+    const s = Math.floor(diff / 1e3);
+    $("cdD").textContent = d; $("cdH").textContent = pad(h); $("cdM").textContent = pad(m); $("cdS").textContent = pad(s);
+    setTimeout(tick, 1000 - (Date.now() % 1000));
+  }
+  tick();
+
+  /* ---------- Closed after deadline ---------- */
+  if (Date.now() > deadline.getTime()) {
+    $("formCard").hidden = true;
+    $("closedCard").hidden = false;
+    return;
+  }
+
+  /* ---------- Form state ---------- */
+  const form = $("rsvpForm");
+  let count = 0;
+  const savedNames = [];
+
+  function attending() {
+    const el = form.querySelector('input[name="attending"]:checked');
+    return el ? el.value : "";
+  }
+
+  function renderNames() {
+    const list = $("namesList");
+    // keep typed values
+    list.querySelectorAll("input").forEach((inp, i) => (savedNames[i] = inp.value));
+    list.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const row = document.createElement("div");
+      row.className = "name-row";
+      row.innerHTML =
+        '<span class="num" aria-hidden="true">' + (i + 1) + "</span>" +
+        '<input type="text" id="guest' + (i + 1) + '" maxlength="80" autocomplete="off" aria-label="Name of person ' + (i + 1) + '" placeholder="Full name of person ' + (i + 1) + '">';
+      row.querySelector("input").value = savedNames[i] || "";
+      list.appendChild(row);
+    }
+    $("namesField").hidden = count === 0;
+  }
+
+  function setCount(n) {
+    count = Math.max(0, Math.min(CONFIG.MAX_COMPANIONS, n));
+    $("companionCount").textContent = count;
+    $("minus").disabled = count === 0;
+    $("plus").disabled = count === CONFIG.MAX_COMPANIONS;
+    $("headcountPill").textContent = "Total in your party: " + (count + 1);
+    renderNames();
+    $("namesErr").hidden = true;
+  }
+
+  $("minus").addEventListener("click", () => setCount(count - 1));
+  $("plus").addEventListener("click", () => {
+    setCount(count + 1);
+    const last = $("guest" + count);
+    if (last) last.focus();
+  });
+
+  form.addEventListener("change", (e) => {
+    if (e.target.name !== "attending") return;
+    $("attendErr").hidden = true;
+    const yes = attending() === "Yes";
+    const block = $("yesOnly");
+    block.hidden = !yes;
+    if (yes) { block.classList.remove("reveal"); void block.offsetWidth; block.classList.add("reveal"); }
+    $("submitLabel").textContent = yes ? "Count me in!" : "Send my RSVP";
+  });
+
+  $("fullName").addEventListener("input", () => { $("nameField").classList.remove("invalid"); $("nameErr").hidden = true; });
+
+  /* ---------- Validation ---------- */
+  const clean = (s) => s.replace(/\s+/g, " ").trim();
+
+  function validate() {
+    let ok = true, firstBad = null;
+    const att = attending();
+    if (!att) { $("attendErr").hidden = false; ok = false; firstBad = firstBad || $("attendYes"); }
+
+    const name = clean($("fullName").value);
+    if (name.length < 3 || !/\s/.test(name)) {
+      $("nameField").classList.add("invalid"); $("nameErr").hidden = false; ok = false;
+      firstBad = firstBad || $("fullName");
+    }
+
+    const guests = [];
+    if (att === "Yes" && count > 0) {
+      let missing = false;
+      for (let i = 1; i <= count; i++) {
+        const inp = $("guest" + i);
+        const v = clean(inp.value);
+        inp.classList.toggle("invalid", !v);
+        if (!v) { missing = true; firstBad = firstBad || inp; }
+        guests.push(v);
+      }
+      if (missing) { $("namesErr").hidden = false; ok = false; }
+    }
+    if (firstBad) firstBad.focus();
+    return ok ? { attending: att, fullName: name, companions: att === "Yes" ? count : 0, companionNames: att === "Yes" ? guests : [] } : null;
+  }
+
+  /* ---------- Submit ---------- */
+  let sending = false;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (sending) return;
+    $("formError").hidden = true;
+    const data = validate();
+    if (!data) return;
+
+    sending = true;
+    const btn = $("submitBtn");
+    btn.disabled = true;
+    const label = $("submitLabel").textContent;
+    btn.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Sending…</span>';
+
+    try {
+      if (DEMO) {
+        console.warn("[RSVP] Demo mode — set CONFIG.SCRIPT_URL to save responses to Google Sheets.", data);
+        await new Promise((r) => setTimeout(r, 900));
+      } else {
+        // text/plain keeps this a "simple" request, so Apps Script needs no CORS preflight
+        const res = await fetch(CONFIG.SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(data)
+        });
+        const out = await res.json();
+        if (!out.ok) throw new Error(out.error || "The RSVP could not be saved.");
+      }
+      store.set({ ...data, at: Date.now() });
+      showThanks(data);
+    } catch (err) {
+      $("formError").textContent = (err && err.message && !/fetch|network|json/i.test(err.message))
+        ? err.message
+        : "We couldn't send your RSVP. Check your internet connection and tap the button again.";
+      $("formError").hidden = false;
+    } finally {
+      sending = false;
+      btn.disabled = false;
+      btn.innerHTML = '<span id="submitLabel">' + label + "</span>";
+    }
+  });
+
+  /* ---------- Thank-you ---------- */
+  function esc(s) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  function showThanks(d) {
+    const yes = d.attending === "Yes";
+    $("formCard").hidden = true;
+    $("thanksCard").hidden = false;
+    $("gymnast").classList.toggle("still", !yes);
+    const first = d.fullName.split(" ")[0];
+    $("thanksTitle").textContent = yes ? "Yay, " + first + "! See you there!" : "Thank you for letting us know, " + first + ".";
+    $("thanksMsg").textContent = yes
+      ? "Get ready to twirl, tumble and celebrate with Story on October 31 at 4:00 PM."
+      : "We'll miss you at the party! Story will be dancing in your honor.";
+    let html = "<div><strong>Attending:</strong> " + (yes ? "Yes" : "No") + "</div><div><strong>Name:</strong> " + esc(d.fullName) + "</div>";
+    if (yes) {
+      html += "<div><strong>Total in party:</strong> " + (d.companions + 1) + "</div>";
+      if (d.companionNames.length) html += "<div><strong>With:</strong> " + d.companionNames.map(esc).join(", ") + "</div>";
+    }
+    if (DEMO) html += '<div style="margin-top:6px;color:#C0395B"><strong>Demo mode:</strong> this response was not saved.</div>';
+    $("summary").innerHTML = html;
+    $("thanksCard").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    if (yes) confetti();
+  }
+
+  $("editBtn").addEventListener("click", () => {
+    $("thanksCard").hidden = true;
+    $("formCard").hidden = false;
+    $("formCard").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  });
+
+  /* ---------- Returning guest: prefill ---------- */
+  const prev = store.get();
+  if (prev && prev.fullName) {
+    $("returningNotice").hidden = false;
+    $("returningNotice").textContent = "Welcome back, " + prev.fullName.split(" ")[0] + "! Your earlier answer is filled in below. Change anything and send again to update it.";
+    $("fullName").value = prev.fullName;
+    const radio = prev.attending === "Yes" ? $("attendYes") : $("attendNo");
+    radio.checked = true;
+    radio.dispatchEvent(new Event("change", { bubbles: true }));
+    (prev.companionNames || []).forEach((n, i) => (savedNames[i] = n));
+    setCount(prev.companions || 0);
+  } else {
+    setCount(0);
+  }
+
+  /* ---------- Confetti ---------- */
+  function confetti() {
+    if (reduceMotion) return;
+    const c = $("confetti"), ctx = c.getContext("2d");
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = innerWidth * dpr; c.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+    const colors = ["#F48FB1", "#B39DDB", "#7FD4B8", "#E7B24A", "#FCE1EB"];
+    const bits = Array.from({ length: 160 }, () => ({
+      x: innerWidth / 2 + (Math.random() - .5) * 120,
+      y: innerHeight * .35,
+      vx: (Math.random() - .5) * 12,
+      vy: -Math.random() * 12 - 4,
+      r: Math.random() * 6 + 4,
+      rot: Math.random() * 6,
+      vr: (Math.random() - .5) * .3,
+      color: colors[(Math.random() * colors.length) | 0],
+      shape: Math.random() < .3 ? "star" : "rect"
+    }));
+    const t0 = performance.now();
+    (function frame(t) {
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      bits.forEach((b) => {
+        b.vy += .28; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.rot += b.vr;
+        ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.rot); ctx.fillStyle = b.color;
+        if (b.shape === "star") {
+          ctx.beginPath();
+          for (let i = 0; i < 10; i++) { const rr = i % 2 ? b.r / 2.2 : b.r; const a = i * Math.PI / 5; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+          ctx.closePath(); ctx.fill();
+        } else ctx.fillRect(-b.r / 2, -b.r / 4, b.r, b.r / 2);
+        ctx.restore();
+      });
+      if (t - t0 < 4000) requestAnimationFrame(frame); else ctx.clearRect(0, 0, innerWidth, innerHeight);
+    })(t0);
+  }
+})();
+</script>
+</body>
+</html>
