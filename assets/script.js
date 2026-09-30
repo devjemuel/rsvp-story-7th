@@ -2,7 +2,7 @@ const CONFIG = {
   SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxGQL3XVnoEqnZbyVwbQZXZXfXoHxhUK_7SMGIEk2hComnSJUL0Z23pKZExByLMCHaiAw/exec",
   EVENT_START: "2026-10-31T16:00:00+08:00",
   EVENT_END:   "2026-10-31T20:00:00+08:00",
-  RSVP_DEADLINE: "2026-10-06T23:59:59+08:00",   // form closes after this
+  RSVP_DEADLINE: "2026-10-07T23:59:59+08:00",   // form closes after this
   MAX_COMPANIONS: 5
 };
 
